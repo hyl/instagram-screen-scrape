@@ -70,13 +70,15 @@ class InstagramPosts extends Readable
           post.media = rawPost.images['standard_resolution'].url
         when 'video'
           post.media = rawPost.videos['standard_resolution'].url
+        when 'carousel'
+          post.media = rawPost.carousel_media.map((media) -> media[if media.images then 'images' else 'videos']['standard_resolution'].url)
         else
           throw new Error("Instagram did not return a URL for the media on post
           #{post.id}")
 
       @_minPostId = rawPost.id # only the last one really matters
 
-      if lastPost? then @push(lastPost)
+      if lastPost? then @push(rawPost)
       lastPost = post
     ).on('end', =>
       if hasMorePosts then @_lock = false
